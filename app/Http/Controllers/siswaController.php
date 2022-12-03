@@ -54,15 +54,14 @@ class siswaController extends Controller
         Session::flash('ttl', $request->ttl);
         Session::flash('kelas', $request->kelas);
         Session::flash('jurusan', $request->jurusan);
-        Session::flash('image', $request->image);
         $request->validate(
             [
                 'nis' => 'required|numeric|unique:siswa,nis',
-                'nama' => 'required',
-                'ttl' => 'required',
-                'kelas' => 'required',
-                'jurusan' => 'required',
-                'image' => 'required',
+                // 'nama' => 'required',
+                // 'ttl' => 'required',
+                // 'kelas' => 'required',
+                // 'jurusan' => 'required',
+                'image' => 'image|mimes:jpg,png,jpeg,gif,svg|max:2048',
             ],
             [
                 'nis.required' => 'NIS harus diisi!',
@@ -75,14 +74,12 @@ class siswaController extends Controller
             ]
         );
 
-        $image = $request->file('image');
-        $file_name = rand(1000, 9999) . $image->getClientOriginalName();
+        $image_path = $request->file('image')->store('image', 'public/images/post');
 
-        $img = Image::make($image->path());
-        $img->resize('180', '120')
-            ->save(public_path('images/post') . '/small_' . $file_name);
+        // $data = Image::create([
+        //     'image' => $image_path,
+        // ]);
 
-        $image->move('images/post', $file_name);
 
         $data = [
             'nis' => $request->nis,
@@ -90,7 +87,7 @@ class siswaController extends Controller
             'ttl' => $request->ttl,
             'kelas' => $request->kelas,
             'jurusan' => $request->jurusan,
-            'image' => $request->$file_name,
+            'image' => $image_path,
         ];
         siswa::create($data);
         return redirect()->to('siswa')->with('success', 'Data Berhasil Disimpan!');
