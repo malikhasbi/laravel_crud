@@ -13,17 +13,17 @@
         <a href=" {{ url('siswa/create') }} " class="btn btn-primary">+ Tambah Data</a>
     </div>
 
-    <table class="table table-sriped">
-        <thead>
+    <table class="table table-striped">
+        <thead class="table-dark">
             <tr>
-                <th class="col-md-1">No</th>
+                <th class="col-md-1 no-sort">No</th>
                 <th class="col-md">NIS</th>
                 <th class="col-md">Nama</th>
-                <th class="col-md">Ttl</th>
+                <th class="col-md">Tempat Tanggal Lahir</th>
                 <th class="col-md-1">Kelas</th>
                 <th class="col-md-1">Jurusan</th>
-                <th class="col-md no-sort">Foto</th>
-                <th class="col-md-1 no-sort">Aksi</th>
+                <th class="col-md no-sort">Gambar</th>
+                <th class="col-md-2 no-sort">Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -35,11 +35,11 @@
                 <td>{{ $i }}</td>
                 <td>{{ $item->nis }}</td>
                 <td>{{ $item->nama }}</td>
-                <td>{{ $item->ttl }}</td>
+                <td>{{ $item->tempat }}, {{ $item->tgl_lahir }}</td>
                 <td>{{ $item->kelas }}</td>
                 <td>{{ $item->jurusan }}</td>
                 <td>
-                    <img src="" class="img-fluid rounded-top" alt="profile" height="75">
+                    <img src="{{asset($item->gambar)}}" width="100">
                 </td>
                 <td>
                     <a href="{{ url('siswa/' . $item->nis . '/edit') }} " class="btn btn-warning btn-sm">Edit</a>

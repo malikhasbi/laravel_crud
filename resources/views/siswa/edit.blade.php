@@ -11,7 +11,10 @@
         </a>
     </div>
     <div class="card-body row py-4 px-5">
-        <form action="{{ url('siswa/' . $data->nis) }}" method="post" class="col">
+        <div class="title text-center my-4">
+            <h3>Edit Data Siswa</h3>
+        </div>
+        <form action="{{ url('siswa/' . $data->nis) }}" method="post" class="col" enctype="multipart/form-data">
             @csrf
             @method('put')
             <div class="mb-3 row">
@@ -28,8 +31,15 @@
             </div>
             <div class="mb-3 row">
                 <label for="ttl" class="form-label col-sm-2">Tempat Tanggal Lahir</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" id="ttl" name="ttl" value="{{ $data->ttl }}">
+                <div class="col-sm-10 row">
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="tempat" name="tempat" placeholder="Tempat"
+                            value="{{ $data->tempat }}">
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="date" class="form-control" id="tgl_lahir" name="tgl_lahir"
+                            value="{{ $data->tgl_lahir }}">
+                    </div>
                 </div>
             </div>
             <div class="mb-3 row">
@@ -45,9 +55,16 @@
                 </div>
             </div>
             <div class="mb-3 row">
-                <label for="image" class="form-label col-sm-2">image</label>
+                <label for="gambar" class="form-label col-sm-2">Gambar</label>
                 <div class="col-sm-10">
-                    <input type="file" class="form-control" id="image" name="image">
+                    <input type="file" class="form-control" id="gambar" name="gambar" accept="image/*"
+                        onchange="document.getElementById('output').src = window.URL.createObjectURL(this.files[0])">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="" class="col-sm-2"></label>
+                <div class="col-sm-10">
+                    <img src="{{ asset($data->gambar) }}" id="output" width="300">
                 </div>
             </div>
             <div class="mb-3 row">
@@ -57,11 +74,6 @@
                 </div>
             </div>
         </form>
-        <div class="col-2">
-            <div class="card">
-                <img src="{{ $data->image() }}" class="card-img-top" alt="profile">
-            </div>
-        </div>
     </div>
 </div>
 {{-- end form --}}

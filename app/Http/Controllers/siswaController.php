@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\siswa;
 use Illuminate\Support\Facades\Session;
-use Intervention\Image\Facades\Image;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 
@@ -19,16 +18,17 @@ class siswaController extends Controller
     public function index(Request $request)
     {
         $kataKunci = $request->katakunci;
-        $jumlahBaris = 4;
+        $jumlahBaris = 5;
         if (strlen($kataKunci)) {
             $data = siswa::where('nis', 'like', "%$kataKunci%")
                 ->orWhere('nama', 'like', "%$kataKunci%")
-                ->orWhere('ttl', 'like', "%$kataKunci%")
+                ->orWhere('tempat', 'like', "%$kataKunci%")
+                ->orWhere('tgl_lahir', 'like', "%$kataKunci%")
                 ->orWhere('kelas', 'like', "%$kataKunci%")
                 ->orWhere('jurusan', 'like', "%$kataKunci%")
                 ->paginate($jumlahBaris);
         } else {
-            $data = siswa::orderBy('nis', 'asc')->paginate(4);
+            $data = siswa::orderBy('nis', 'asc')->paginate(5);
         }
         return view('siswa.index')->with('data', $data);
     }
@@ -53,14 +53,16 @@ class siswaController extends Controller
     {
         Session::flash('nis', $request->nis);
         Session::flash('nama', $request->nama);
-        Session::flash('ttl', $request->ttl);
+        Session::flash('tempat', $request->tempat);
+        Session::flash('tgl_lahir', $request->tgl_lahir);
         Session::flash('kelas', $request->kelas);
         Session::flash('jurusan', $request->jurusan);
         $request->validate(
             [
                 'nis' => 'required|numeric|unique:siswa,nis',
                 'nama' => 'required',
-                'ttl' => 'required',
+                'tempat' => 'required',
+                'tgl_lahir' => 'required',
                 'kelas' => 'required',
                 'jurusan' => 'required',
                 'image' => 'required|image|mimes:png,jpg|max:2048',
@@ -70,24 +72,20 @@ class siswaController extends Controller
                 'nis.numeric' => 'NIS harus dalam angka!',
                 'nis.unique' => 'NIS sudah ada!',
                 'nama.required' => 'Nama harus diisi!',
-                'ttl.required' => 'Tempat Tanggal Lahir harus diisi!',
+                'tempat.required' => 'Tempat Tanggal Lahir harus diisi!',
+                'tgl_lahir.required' => 'Tempat Tanggal Lahir harus diisi!',
                 'kelas.required' => 'Kelas harus diisi!',
                 'jurusan.required' => 'Jurusan harus diisi!',
             ]
         );
 
-        $gambar = $request->image;
-        $slug = Str::slug($gambar->getClientOriginalName());
-        $new_gambar = time() . '_' . $slug;
-        $gambar->move('images/', $new_gambar);
-
         $data = [
             'nis' => $request->nis,
             'nama' => $request->nama,
-            'ttl' => $request->ttl,
+            'tempat' => $request->tempat,
+            'tgl_lahir' => $request->tgl_lahir,
             'kelas' => $request->kelas,
             'jurusan' => $request->jurusan,
-            'image' => 'images/' . $new_gambar,
         ];
         siswa::create($data);
         return redirect()->to('siswa')->with('success', 'Data Berhasil Disimpan!');
@@ -123,32 +121,26 @@ class siswaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id, Siswa $siswa)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'nama' => 'required',
-            'ttl' => 'required',
+            'tempat' => 'required',
+            'tgl_lahir' => 'required',
             'kelas' => 'required',
             'jurusan' => 'required'
         ], [
             'nama.required' => 'Nama harus diisi!',
-            'ttl.required' => 'Tempat Tanggal Lahir harus diisi!',
+            'tempat.required' => 'Tempat Tanggal Lahir harus diisi!',
+            'tgl_lahir.required' => 'Tempat Tanggal Lahir harus diisi!',
             'kelas.required' => 'Kelas harus diisi!',
             'jurusan.required' => 'Jurusan harus diisi!'
         ]);
-        if ($request->hasFile('image')) {
-            $siswa->delete_image();
-            $image = $request->file('image');
-            $file_name = rand(1000, 9999) . $image->getClientOriginalName();
-            $img = Image::make($image->path());
-            $img->resize('180', '120')
-                ->save(public_path('images/post') . '/small_' . $file_name);
-            $image->move('images/post', $file_name);
-            $siswa->image = $file_name;
-        }
+
         $data = [
             'nama' => $request->nama,
-            'ttl' => $request->ttl,
+            'tempat' => $request->tempat,
+            'tgl_lahir' => $request->tgl_lahir,
             'kelas' => $request->kelas,
             'jurusan' => $request->jurusan,
         ];
@@ -163,9 +155,8 @@ class siswaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id, Siswa $siswa)
+    public function destroy($id)
     {
-        $siswa->delete_image();
         siswa::where('nis', $id)->delete();
         return redirect()->to('siswa')->with('success', 'Data berhasil dihapus!');
     }
