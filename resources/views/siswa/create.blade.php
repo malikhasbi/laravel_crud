@@ -3,7 +3,7 @@
 
 
 {{-- form --}}
-<form action="{{ url('siswa') }}" method="post">
+<form action="{{ url('siswa') }}" method="post" enctype="multipart/form-data">
     @csrf
     <div class="my-3 p-3 bg-body rounded shadow-sm">
         <div class="mb-3 row">
@@ -40,7 +40,15 @@
         <div class="mb-3 row">
             <label for="image" class="form-label col-sm-2">Foto</label>
             <div class="col-sm-10">
-                <input type="file" class="form-control" id="image" name="image">
+                <input type="file" class="form-control" id="image" name="image" value="{{ Session::get('image')}}"
+                    accept="image/*"
+                    onchange="document.getElementById('output').src = window.URL.createObjectURL(this.files[0])">
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="" class="col-sm-2"></label>
+            <div class="col-sm-10">
+                <img src="" id="output" width="300">
             </div>
         </div>
         <div class="mb-3 row">

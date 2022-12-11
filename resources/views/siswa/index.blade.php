@@ -39,7 +39,7 @@
                 <td>{{ $item->kelas }}</td>
                 <td>{{ $item->jurusan }}</td>
                 <td>
-                    <img src="{{ $item->image() }}" class="img-fluid rounded-top" alt="profile" height="75">
+                    <img src="" class="img-fluid rounded-top" alt="profile" height="75">
                 </td>
                 <td>
                     <a href="{{ url('siswa/' . $item->nis . '/edit') }} " class="btn btn-warning btn-sm">Edit</a>

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\siswa;
 use Illuminate\Support\Facades\Session;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 
 class siswaController extends Controller
 {
@@ -57,11 +59,11 @@ class siswaController extends Controller
         $request->validate(
             [
                 'nis' => 'required|numeric|unique:siswa,nis',
-                // 'nama' => 'required',
-                // 'ttl' => 'required',
-                // 'kelas' => 'required',
-                // 'jurusan' => 'required',
-                'image' => 'image|mimes:jpg,png,jpeg,gif,svg|max:2048',
+                'nama' => 'required',
+                'ttl' => 'required',
+                'kelas' => 'required',
+                'jurusan' => 'required',
+                'image' => 'required|image|mimes:png,jpg|max:2048',
             ],
             [
                 'nis.required' => 'NIS harus diisi!',
@@ -74,12 +76,10 @@ class siswaController extends Controller
             ]
         );
 
-        $image_path = $request->file('image')->store('image', 'public/images/post');
-
-        // $data = Image::create([
-        //     'image' => $image_path,
-        // ]);
-
+        $gambar = $request->image;
+        $slug = Str::slug($gambar->getClientOriginalName());
+        $new_gambar = time() . '_' . $slug;
+        $gambar->move('images/', $new_gambar);
 
         $data = [
             'nis' => $request->nis,
@@ -87,7 +87,7 @@ class siswaController extends Controller
             'ttl' => $request->ttl,
             'kelas' => $request->kelas,
             'jurusan' => $request->jurusan,
-            'image' => $image_path,
+            'image' => 'images/' . $new_gambar,
         ];
         siswa::create($data);
         return redirect()->to('siswa')->with('success', 'Data Berhasil Disimpan!');
