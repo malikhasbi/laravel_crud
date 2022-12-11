@@ -39,7 +39,11 @@
                 <td>{{ $item->kelas }}</td>
                 <td>{{ $item->jurusan }}</td>
                 <td>
-                    <img src="{{asset($item->gambar)}}" width="100">
+                    @if ($item->image != '')
+                    <img src="{{asset('storage/gambar/'.$item->image)}}" width="100">
+                    @else
+                    <img src="{{asset('images/default.png')}}" width="100">
+                    @endif
                 </td>
                 <td>
                     <a href="{{ url('siswa/' . $item->nis . '/edit') }} " class="btn btn-warning btn-sm">Edit</a>

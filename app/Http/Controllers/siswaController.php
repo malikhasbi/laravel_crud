@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\siswa;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class siswaController extends Controller
 {
@@ -51,6 +50,7 @@ class siswaController extends Controller
      */
     public function store(Request $request)
     {
+
         Session::flash('nis', $request->nis);
         Session::flash('nama', $request->nama);
         Session::flash('tempat', $request->tempat);
@@ -65,7 +65,7 @@ class siswaController extends Controller
                 'tgl_lahir' => 'required',
                 'kelas' => 'required',
                 'jurusan' => 'required',
-                'image' => 'required|image|mimes:png,jpg|max:2048',
+                'image' => 'image|mimes:jpg,jpeg,png',
             ],
             [
                 'nis.required' => 'NIS harus diisi!',
@@ -79,6 +79,12 @@ class siswaController extends Controller
             ]
         );
 
+        if ($request->file('image')) {
+            $extension = $request->file('image')->getClientOriginalExtension();
+            $newName = $request->nis . '-' . now()->timestamp . '.' . $extension;
+            $request->file('image')->storeAs('gambar', $newName);
+        }
+
         $data = [
             'nis' => $request->nis,
             'nama' => $request->nama,
@@ -86,6 +92,7 @@ class siswaController extends Controller
             'tgl_lahir' => $request->tgl_lahir,
             'kelas' => $request->kelas,
             'jurusan' => $request->jurusan,
+            'image' => $newName,
         ];
         siswa::create($data);
         return redirect()->to('siswa')->with('success', 'Data Berhasil Disimpan!');
@@ -123,19 +130,38 @@ class siswaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'nama' => 'required',
-            'tempat' => 'required',
-            'tgl_lahir' => 'required',
-            'kelas' => 'required',
-            'jurusan' => 'required'
-        ], [
-            'nama.required' => 'Nama harus diisi!',
-            'tempat.required' => 'Tempat Tanggal Lahir harus diisi!',
-            'tgl_lahir.required' => 'Tempat Tanggal Lahir harus diisi!',
-            'kelas.required' => 'Kelas harus diisi!',
-            'jurusan.required' => 'Jurusan harus diisi!'
-        ]);
+        // $request->validate([
+        //     'nama' => 'required',
+        //     'tempat' => 'required',
+        //     'tgl_lahir' => 'required',
+        //     'kelas' => 'required',
+        //     'jurusan' => 'required'
+        // ], [
+        //     'nama.required' => 'Nama harus diisi!',
+        //     'tempat.required' => 'Tempat Tanggal Lahir harus diisi!',
+        //     'tgl_lahir.required' => 'Tempat Tanggal Lahir harus diisi!',
+        //     'kelas.required' => 'Kelas harus diisi!',
+        //     'jurusan.required' => 'Jurusan harus diisi!'
+        // ]);
+
+        $siswa = Siswa::where('nis', $id)->first();
+        // dd($siswa);
+
+        if ($request->file('image')) {
+            if ($siswa->image != 'default.png') {
+                unlink('storage/gambar/' . $siswa->image);
+            }
+            // Storage::move('old/file.jpg', 'new/file.jpg');
+
+            $extension = $request->file('image')->getClientOriginalExtension();
+            $newName = $siswa->nis . '-' . now()->timestamp . '.' . $extension;
+            // $request->file('image')->storeAs('gambar', $newName);
+            $request->file('image')->move('storage/gambar/', $newName);
+            $siswa->update([
+                'image' => $newName,
+            ]);
+        }
+
 
         $data = [
             'nama' => $request->nama,
@@ -145,7 +171,9 @@ class siswaController extends Controller
             'jurusan' => $request->jurusan,
         ];
 
-        siswa::where('nis', $id)->update($data);
+        // $siswa->update($data);
+        $a = Siswa::where('nis', $id);
+        dd($a);
         return redirect()->to('siswa')->with('success', 'Data berhasil diperbaharui!');
     }
 
@@ -157,7 +185,9 @@ class siswaController extends Controller
      */
     public function destroy($id)
     {
-        siswa::where('nis', $id)->delete();
+        $siswa = Siswa::where('nis', $id);
+        $siswa->delete();
+        Storage::delete('storage/gambar/' . $siswa);
         return redirect()->to('siswa')->with('success', 'Data berhasil dihapus!');
     }
 }
