@@ -186,7 +186,7 @@ class siswaController extends Controller
     {
         $siswa = Siswa::where('nis', $id);
         $siswa->delete();
-        Storage::delete('storage/gambar/' . $siswa);
+        Storage::delete('storage/gambar/' . $siswa->image);
         return redirect()->to('siswa')->with('success', 'Data berhasil dihapus!');
     }
 }
