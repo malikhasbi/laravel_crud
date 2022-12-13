@@ -143,9 +143,8 @@ class siswaController extends Controller
         //     'kelas.required' => 'Kelas harus diisi!',
         //     'jurusan.required' => 'Jurusan harus diisi!'
         // ]);
-
-        $siswa = Siswa::where('nis', $id)->first();
-        // dd($siswa);
+        $siswa = siswa::where('nis', $id)->first();
+        // dd($siswa->image);
 
         if ($request->file('image')) {
             if ($siswa->image != 'default.png') {
@@ -157,7 +156,7 @@ class siswaController extends Controller
             $newName = $siswa->nis . '-' . now()->timestamp . '.' . $extension;
             // $request->file('image')->storeAs('gambar', $newName);
             $request->file('image')->move('storage/gambar/', $newName);
-            $siswa->update([
+            Siswa::where('nis', $id)->update([
                 'image' => $newName,
             ]);
         }
@@ -169,11 +168,11 @@ class siswaController extends Controller
             'tgl_lahir' => $request->tgl_lahir,
             'kelas' => $request->kelas,
             'jurusan' => $request->jurusan,
+            // 'image' => $newName,
         ];
 
         // $siswa->update($data);
-        $a = Siswa::where('nis', $id);
-        dd($a);
+        Siswa::where('nis', $id)->update($data);
         return redirect()->to('siswa')->with('success', 'Data berhasil diperbaharui!');
     }
 
